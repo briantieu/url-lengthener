@@ -1,5 +1,6 @@
 from flask import Flask, render_template, jsonify, request, make_response, redirect, url_for
 from db import insert_db, read_db, init_db
+from textwrap import wrap
 
 from hashlib import sha3_512
 
@@ -46,26 +47,40 @@ def urlengthen():
     if request.method == "POST":
         # parse form
         original_url = request.form['url']
+        num_iters = int(request.form['slider'])
+        print(num_iters)
 
         # hash url
         hashed_url = hash(original_url)
 
         # store in database
         insert_db(original_url, hashed_url)
-        print("inserted")
 
         # serve to js
-        html = render_template('urlengthen.html', original_url=original_url, hashed_url=str(request.host_url) + str(hashed_url))
+        html = render_template('urlengthen.html', original_url=original_url, hashed_url=str(request.host_url) + (str(hashed_url) * num_iters), num_iters=num_iters)
         response = make_response(html)
         return response
-    html = render_template('urlengthen.html', original_url="NONE", hashed_url="NONE")
+    html = render_template('urlengthen.html', original_url="", hashed_url="", num_iters="50")
     response = make_response(html)
     return response
 
 @app.route('/<hash>')
 def url_redirect(hash):
-    original_url = read_db(hash)
+    split_hash = wrap(hash, 128)
+    unique_split_hash = list(set(split_hash))
+    print('unique_split_hash')
+    single_iter_hash = unique_split_hash[0]
+    print(read_db(single_iter_hash))
+
+    if len(unique_split_hash) > 1 or read_db(single_iter_hash) == '':
+
+        html = render_template('error.html')
+        response = make_response(html)
+        return response
+
+    original_url = read_db(single_iter_hash)
     print(original_url)
+    # print(original_url)
     return redirect(original_url)
 
 
