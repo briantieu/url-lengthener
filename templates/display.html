@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Displaying</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="container">
+        <p id='header-text'>Tap to change language</p>
+        <p id='speech-to-text-output'></p>
+    </div>
+</body>
+
+<script>
+    // continually fetch the latest text and place it on screen
+    const text_p = document.getElementById('speech-to-text-output');
+    const fetchData = () => {
+        fetch('/get_text')
+            .then(response => response.json())
+            .then(response => {
+                const text = response.displayText
+                text_p.innerHTML = text;
+            })
+    }
+
+    $("document").ready(setInterval(() => {
+        fetchData()
+        window.scrollTo(0, document.body.scrollHeight || document.documentElement.scrollHeight)
+    }, 50));
+
+    // go to change language section
+    document.addEventListener('mousedown', () => window.location.replace('changelanguage'))
+</script>
+</html>

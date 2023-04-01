@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <meta http-equiv="refresh" content="0"> -->
+	<title>Changing Language</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+
+<body>
+    <div id="container">
+        <p id="header-text">Tap to cancel</p>
+        <p id="lang">Swipe to change language</p>
+        <p id="use-arrows-text">(Use ← and → on desktop.)</p>
+    </div>
+</body>
+
+<script>
+    // detects left arrow and right arrow clicks to switch between languages
+    // chinese, spanish, english, hindi, arabic, portuguese, bengali, russian, japanese
+    let languageIndex = -1
+    const shorthandLangOptions = ['zh', 'es', 'en', 'hi', 'ar', 'pt', 'bn', 'ru', 'ja']
+    const languageOptions = ['Chinese', 'Spanish', 'English', 'Hindi', 'Arabic', 'Portuguese', 'Bengali', 'Russian', 'Japanese']
+
+    const changeLanguage = () => {
+        // change language on frontend
+        document.getElementById('lang').innerHTML = languageOptions[languageIndex % (languageOptions.length)]
+        document.getElementById('header-text').innerHTML = 'Tap to confirm'
+        document.getElementById('use-arrows-text').innerHTML = ''
+
+        // change language on backend
+        const postChangeLanguage = async (language) => {
+            const response = await fetch('/change_language', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    'language': language
+                })
+            })
+        }
+        postChangeLanguage(shorthandLangOptions[languageIndex % (shorthandLangOptions.length)])
+    }
+
+    const languageChangeClick = (event) => {
+        if (event.key != 'ArrowRight' && event.key != 'ArrowLeft') return
+        if (event.key == 'ArrowRight') {
+            languageIndex++
+            if (languageIndex == languageOptions.length) languageIndex = 0
+        } else if (event.key == 'ArrowLeft') {
+            languageIndex--
+            if (languageIndex < 0) languageIndex = languageOptions.length - 1
+        }
+        changeLanguage()
+    }
+    document.addEventListener('keydown', languageChangeClick)
+
+    // return back to display
+    document.addEventListener('mousedown', () => window.location.replace('display'))
+
+
+</script>
+</html>
