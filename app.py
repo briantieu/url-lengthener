@@ -4,8 +4,6 @@ from textwrap import wrap
 
 from hashlib import sha3_512
 
-# os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = r"serviceAccountToken.json" # /etc/secrets/serviceAccountToken.json
-
 app = Flask(__name__)
 
 def hash(message):
